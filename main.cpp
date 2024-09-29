@@ -21,11 +21,13 @@ void RenderGrid(SDL_Renderer *renderer)
         {
             if (grid[i][j] == Material::SAND)
             {
-                SDL_SetRenderDrawColor(renderer, 0xAA, 0x00, 0xDD, 0xFF);
+                SDL_SetRenderDrawColor(renderer, 0xDD, 0x00, 0x88, 0xFF);
+                // SDL_SetRenderDrawColor(renderer, 0xAA, 0x00, 0xDD, 0xFF);
             }
             else if (grid[i][j] == Material::SOLID)
             {
-                SDL_SetRenderDrawColor(renderer, 0xFF, 0xAA, 0x00, 0xFF);
+                SDL_SetRenderDrawColor(renderer, 0x55, 0x00, 0xEE, 0xFF);
+                // SDL_SetRenderDrawColor(renderer, 0xFF, 0xAA, 0x00, 0xFF);
             }
             else
             {
@@ -90,16 +92,18 @@ void UpdateGrid()
         }
     }
 }
-
+void AddRandomParticle()
+{
+    const Material mat = static_cast<Material>(Random::randRangeNormal(0, 2));
+    const int pointJ = Random::randGaussian(SCREEN_WIDTH / 2 - 10, SCREEN_WIDTH / 2 + 10);
+    grid[0][pointJ] = mat;
+}
 void AddLayer()
 {
-    for (int j = 0; j < SCREEN_WIDTH; j++)
+    const int LAYER_HEIGHT = 30;
+    for (int i = LAYER_HEIGHT; i >= 0; i--)
     {
-        grid[SCREEN_HEIGHT - 1][j] = Material::SOLID;
-    }
-    for (int i = 15; i >= 0; i--)
-    {
-        for (int j = (15 - i) / (2 * 15); j < SCREEN_WIDTH * i / 15; j++)
+        for (int j = (SCREEN_WIDTH * (LAYER_HEIGHT - i)) / (LAYER_HEIGHT); j < (SCREEN_WIDTH * i / LAYER_HEIGHT); j++)
         {
             grid[i][j] = static_cast<Material>(Random::randRangeNormal(0, 2));
         }
@@ -112,6 +116,10 @@ int main(int argc, char *argv[])
     SDL_Renderer *renderer;
     SDL_Event event;
     bool shouldQuit{false};
+    for (int j = 0; j < SCREEN_WIDTH; j++)
+    {
+        grid[SCREEN_HEIGHT - 1][j] = Material::SOLID;
+    }
     AddLayer();
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -165,10 +173,8 @@ int main(int argc, char *argv[])
         SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 0xff);
         // SDL_Rect *rect = new SDL_Rect{posX, posY, 4, 4};
         // SDL_RenderFillRect(renderer, rect);
-        if (!(frames % 120))
-        {
-            AddLayer();
-        }
+
+        AddRandomParticle();
         ++frames;
         UpdateGrid();
         RenderGrid(renderer);
