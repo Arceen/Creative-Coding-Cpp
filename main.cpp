@@ -20,6 +20,30 @@ void UpdatePixel(void *pixels, int x, int y, int r, int g, int b, int a)
     pixel[index + 3] = 255;
 }
 
+void DrawCircleV3(SDL_Renderer *renderer, int x, int y, int r, int pointCount)
+{
+    SDL_RenderClear(renderer);
+    SDL_Texture *texture;
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+    void *pixels;
+    int pitch;
+    SDL_LockTexture(texture, NULL, &pixels, &pitch);
+
+    for (int i = 0; i < QUADRENT_DEGREE; i++)
+    {
+        int perimeterX = r * cos(i * (PI / 180));
+        int perimeterY = r * sin(i * (PI / 180));
+        for (int j = -perimeterX; j <= perimeterX; j++)
+        {
+            UpdatePixel(pixels, x + j, y + perimeterY, 255, 0, 0, 255);
+            UpdatePixel(pixels, x + j, y - perimeterY, 255, 0, 0, 255);
+        }
+    }
+
+    SDL_UnlockTexture(texture);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    SDL_DestroyTexture(texture);
+}
 void DrawCircleV2(SDL_Renderer *renderer, int x, int y, int r, int pointCount)
 {
     SDL_RenderClear(renderer);
@@ -82,9 +106,16 @@ public:
     void render(SDL_Renderer *renderer)
     {
         SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-        SDL_RenderDrawPoint(renderer, x, y);
+
+        DrawCircleV3(renderer, x, y, r, 10);
+        // SDL_RenderDrawPoint(renderer, x, y);
+        // SDL_Rect rect;
+        // rect.x = x - r;
+        // rect.y = y - r;
+        // rect.w = 2 * r;
+        // rect.h = 2 * r;
+        // SDL_RenderDrawRect(renderer, &rect);
         SDL_SetRenderDrawColor(renderer, 128, 0, 31, 255);
-        DrawCircleV2(renderer, x, y, r, 10);
     }
 };
 
